@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summarize Texts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Home.css' %}">
+</head>
+<body>
+    <main class="main-container">
+        <header class="header">
+            <h1>Summarize texts</h1>
+        </header>
+
+        <form action="{% url 'summarize' %}" method="POST" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+            <section class="file-upload-section">
+                <div class="file-upload-area" id="fileDropArea" onclick="handleFileClick()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="file-upload-background"></div>
+                    <p class="file-upload-text" id="uploadPrompt">
+                        Drag and drop your file<br>
+                        or click to browse
+                    </p>
+                </div>
+                <input type="file" id="fileInput" name="textfile" accept=".txt" style="display: none;" />
+            </section>
+
+            <section class="input-section">
+                <div class="text-input-container">
+                    <div class="text-input-background"></div>
+                    <input type="text" class="text-input" name="user_input" placeholder="Type a message to start summary from…" id="textInput">
+                </div>
+
+                <button class="summarize-button" type="submit">
+                    <div class="button-background"></div>
+                    <span class="button-text">Summarize</span>
+                </button>
+            </section>
+        </form>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById("fileInput");
+        const uploadPrompt = document.getElementById("uploadPrompt");
+
+        function handleFileClick() {
+            fileInput.click();
+        }
+
+        fileInput.addEventListener("change", updatePrompt);
+
+        function updatePrompt() {
+            const file = fileInput.files[0];
+            if (file) {
+                uploadPrompt.innerHTML = `Selected file: <strong>${file.name}</strong>`;
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.style.opacity = '0.8';
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.currentTarget.style.opacity = '1';
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.style.opacity = '1';
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === "text/plain") {
+                fileInput.files = event.dataTransfer.files;
+                updatePrompt();
+            } else {
+                alert("Only .txt files are supported.");
+            }
+        }
+    </script>
+</body>
+</html>
